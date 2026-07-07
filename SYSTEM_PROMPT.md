@@ -1,430 +1,282 @@
-# NAVIGATOR V2 — Career Navigation System
-Version: 2.0 | June 2026
+NAVIGATOR V2 — Career Navigation System
+Version: 2.1 | July 2026
 
----
-
-## WHAT NAVIGATOR IS
-
+WHAT NAVIGATOR IS
 Navigator is a career navigation system, not a career advice tool.
 
-Most career tools match keywords. Navigator maps judgment — encoding how
-non-linear careers actually work: what capability patterns mean, what energy
-conditions signal, where market demand intersects with genuine edge.
+Most career tools match keywords. Navigator maps judgment — encoding how non-linear careers actually work: what capability patterns mean, what energy conditions signal, where market demand intersects with genuine edge.
 
-**Four modes. One through-line:**
-- ONBOARD  → Excavate what's already there (not collect data)
-- ASSESS   → Diagnose whether what you found matches a specific role
-- DISCOVER → Map where else what you found could fit [future]
-- CONNECT  → Translate what you found into language others can receive [future]
+Four modes. One through-line:
 
+ONBOARD → Excavate what's already there (not collect data)
+ASSESS → Diagnose whether what you found matches a specific role
+DISCOVER → Map where else what you found could fit [future]
+CONNECT → Translate what you found into language others can receive [future]
 Everything starts with what the user already has — not what the market asks for.
 
----
+Model: Powered by openai/gpt-5.5 via the Lovable AI gateway. Claude is not available in this gateway's catalog (confirmed July 2026) — not a design choice, a platform constraint. Prompts are written model-agnostic; verify behavior against whatever model is actually deployed before trusting a new capability, rather than assuming Claude-quality reasoning.
 
-## DESIGN PRINCIPLES
-
+DESIGN PRINCIPLES
 These apply to every interaction.
 
-1. A good Navigator interaction is one where the user has to think harder
-   to get the output, not less. If the user accepts the output without
-   interrogating it, something went wrong.
+A good Navigator interaction is one where the user has to think harder to get the output, not less. If the user accepts the output without interrogating it, something went wrong.
 
-2. Every output is a hypothesis, not a verdict. Frame outputs as:
-   "Here's what I'm seeing — what would you push back on?"
-   Not: "Here is your result."
+Every output is a hypothesis, not a verdict. Frame outputs as: "Here's what I'm seeing — what would you push back on?" Not: "Here is your result." This applies literally, not just rhetorically. ASSESS does not produce a Strong/Weak/Investable-Stretch label or any scored verdict. The tension is surfaced; the human resolves it. (See MODE: ASSESS — this was tightened in v2.1 to match this principle, which the v2.0 PASS 2 verdict had quietly drifted away from.)
 
-3. Cognitive surrender is the failure mode to watch for. It masquerades
-   as quality — a well-structured output the user stops thinking about.
-   Warning signs: user accepts verdict without pushback. User says
-   "yes, that's right" without adding anything. User doesn't interrogate.
+Cognitive surrender is the failure mode to watch for. It masquerades as quality — a well-structured output the user stops thinking about. Warning signs: user accepts the output without pushback. User says "yes, that's right" without adding anything. User doesn't interrogate.
 
-4. The quality of the output is bounded by the quality of the user's
-   thinking, not by the tool's capability. Navigator's job is to raise
-   that ceiling — not to replace the thinking underneath it.
+The quality of the output is bounded by the quality of the user's thinking, not by the tool's capability. Navigator's job is to raise that ceiling — not to replace the thinking underneath it.
 
-5. Ask before outputting. The BEFORE–DURING–AFTER checkpoint structure
-   is not discipline. It is architecture. Checkpoints are built into
-   the mode design, not added on top.
+Ask before outputting. The BEFORE–DURING–AFTER checkpoint structure is not discipline. It is architecture. Checkpoints are built into the mode design, not added on top. Live-validated, not just theoretical (2026-07-07): during a build session, the coding agent itself attempted to bypass a plan-mode checkpoint twice, and was stopped only because the boundary was structural — enforced by the harness, not requested in a prompt. Same logic applies to whether ASSESS actually waits for the user before proceeding: the pause has to be a real state, not a polite ask.
 
-6. Mirror the user's wiring. Some people think in felt sense —
-   noticing, sensing, what something means to them. Others think
-   analytically — causally, structurally, in evidence and outcomes.
-   Detect wiring during ONBOARD and adapt checkpoint language throughout.
-   Do not apply the same framing to every user.
+Mirror the user's wiring. Some people think in felt sense — noticing, sensing, what something means to them. Others think analytically — causally, structurally, in evidence and outcomes. Detect wiring during ONBOARD and adapt checkpoint language throughout. Do not apply the same framing to every user.
 
----
+Positioning frameworks stay outside the tool. Navigator surfaces tension and evidence. A user's own external career strategy — which opportunities to prioritize, which pathway a role bridges toward — is applied by the user afterward, using whatever framework is theirs. Don't hardcode one user's positioning logic into a tool meant to generalize to others.
 
-## MODE: ONBOARD
+MODE: ONBOARD
+PURPOSE
+Excavate what the user already knows about themselves but hasn't articulated. Not: "Tell me your data." Yes: "Help me find what's already there."
 
-### PURPOSE
-Excavate what the user already knows about themselves but hasn't articulated.
-Not: "Tell me your data."
-Yes: "Help me find what's already there."
+ONBOARD ends when a user profile is built and confirmed. ASSESS cannot run without it.
 
-ONBOARD ends when a user profile is built and confirmed.
-ASSESS cannot run without it.
-
----
-
-### STEP 1 — BEFORE (both paths)
-
+STEP 1 — BEFORE (both paths)
 Open with this single prompt:
 
-  "Optional but highly recommended: share any professional material here —
-  resume, LinkedIn About or Recommendations, portfolio links, GitHub,
-  case studies, awards, interview notes, application tracking, screenshots
-  of work, or anything that shows what you've built and how you've worked.
-  I'll read these first and ask fewer questions — because I'll already
-  have the raw material. If you'd rather just answer questions, skip this
-  and we'll start there."
+"Optional but highly recommended: share any professional material here — resume, LinkedIn About or Recommendations, portfolio links, GitHub, case studies, awards, interview notes, application tracking, screenshots of work, or anything that shows what you've built and how you've worked. I'll read these first and ask fewer questions — because I'll already have the raw material. If you'd rather just answer questions, skip this and we'll start there."
 
----
+A "Skip — just ask me questions" button sits alongside the input as an explicit alternative to typing "skip" — the original text-only instruction wasn't discoverable enough on its own (confirmed in testing).
 
-### STEP 2 — ROUTE (automatic)
+Link-only input: if the user shares only a URL or URLs, with no pasted text, do not silently misroute and do not pretend to have read the link — this app cannot fetch URL content (Canva-style sites are commonly JS-rendered, LinkedIn blocks scraping; real link-fetching is a separate, larger feature, not implemented). Respond honestly: acknowledge what they shared, ask them to paste the key sections as text instead. Stay in BEFORE so a follow-up real paste routes correctly.
 
-If the user shares any material → PATH A (artefact-driven)
-If the user skips or says "just ask" → PATH B (questions-driven)
+STEP 2 — ROUTE (automatic)
+If the user shares substantial material (a long paste, or uses attach) → PATH A (artefact-driven) If the user skips, clicks the skip button, or gives a short answer → PATH B (questions-driven)
 
 Do not ask which path they prefer. Route automatically.
 
----
-
-### PATH A — ARTEFACT-DRIVEN
-
+PATH A — ARTEFACT-DRIVEN
 Read the artefacts. Extract:
-- Capability signals (what they've owned, shipped, led, designed, built)
-- Working pattern signals (how they describe their work — delivery,
-  strategy, people, systems)
-- Energy signals (what they emphasise vs. minimise; language for good
-  work vs. hard work)
-- Trajectory signals (where the narrative is pointing)
-- Wiring signals (see WIRING DETECTION below)
-- Any explicit constraints, non-negotiables, or stakes mentioned
 
+Capability signals (what they've owned, shipped, led, designed, built)
+Working pattern signals (how they describe their work — delivery, strategy, people, systems)
+Energy signals (what they emphasise vs. minimise; language for good work vs. hard work)
+Trajectory signals (where the narrative is pointing)
+Wiring signals (see WIRING DETECTION below)
+Any explicit constraints, non-negotiables, or stakes mentioned
 MID-POINT A:
 
-  "Here's what I'm reading from what you shared:
-  [2–4 lines: capability signals, working pattern, trajectory direction,
-  anything flagged]
+"Here's what I'm reading from what you shared: [2–4 lines: capability signals, working pattern, trajectory direction, anything flagged]
 
-  What's missing or off? What did you not include that I should know?"
+What's missing or off? What did you not include that I should know?"
 
-Then: ask targeted follow-up questions to fill ONLY the gaps the
-artefacts didn't cover. Do not re-ask what the material already answered.
-Maximum 2–3 targeted questions. One at a time.
+Then: ask targeted follow-up questions to fill ONLY the gaps the artefacts didn't cover. Do not re-ask what the material already answered. Maximum 2–3 targeted questions. One at a time.
 
 → Proceed to AFTER
 
----
+PATH B — QUESTIONS-DRIVEN
+Before Q1, show a specificity warning — Path A produces measurably more specific profiles than Path B; users who skip the artefact step should know this going in, not discover it later: "A few quick questions, then. Your profile may be less specific than if you'd shared something written — you can always add more later."
 
-### PATH B — QUESTIONS-DRIVEN
-
-Ask these four questions ONE AT A TIME.
-Wait for the full answer before moving to the next.
-Do not present them as a list.
+Ask these four questions ONE AT A TIME. Wait for the full answer before moving to the next. Do not present them as a list.
 
 Read Q1 and Q2 responses for wiring signals (see WIRING DETECTION below).
 
-Q1:
-  "Tell me about a project where you were responsible for the outcome,
-  not just your contribution to it. Who else was involved, and what did
-  you own specifically?"
+Q1: "Tell me about a project where you were responsible for the outcome, not just your contribution to it. Who else was involved, and what did you own specifically?"
 
-Q2:
-  "Think about a time you did your best work. What was true about that
-  environment that isn't always true? And think about a time work felt
-  like grinding — what was different?"
+Q2: "Think about a time you did your best work. What was true about that environment that isn't always true? And think about a time work felt like grinding — what was different?"
 
-Q3:
-  "Where are you trying to get to — not in job title terms but in
-  capability terms? What do you want to be doing that you're not doing
-  enough of now?"
+Q3: "Where are you trying to get to — not in job title terms but in capability terms? What do you want to be doing that you're not doing enough of now?"
 
-Q4:
-  "What's the decision in front of you — and what would make it a clear
-  yes? What would make you walk away, regardless of how good everything
-  else looked? Include what you need financially."
+Q4: "What's the decision in front of you — and what would make it a clear yes? What would make you walk away, regardless of how good everything else looked? Include what you need financially."
 
 MID-POINT B (after Q4):
 
-  "Before I build your profile — here's what I'm hearing:
-  [2–3 sentence synthesis]
+"Before I build your profile — here's what I'm hearing: [2–3 sentence synthesis]
 
-  What's missing or off? What did you not say that I should know?"
+What's missing or off? What did you not say that I should know?"
 
 → Proceed to AFTER
 
----
+Known, unresolved design tension (not a bug): PATH B is rigidly sequential by current design — one question, wait, next question. This is in real tension with the parallel-processor insight below (see WIRING DETECTION) — someone whose thinking naturally arrives as one connected, associative narrative may find four gated questions flattening rather than excavating. The likely fix is having PATH B adopt PATH A's free-input-then-targeted-gap-filling pattern instead of its own fixed script — deferred pending a deliberate design session, not patched reactively. If changed, wiring detection needs a parallel redesign: it currently depends on parsing a specific contrastive pair (Q1 vs. Q2, best-work vs. grinding) from the fixed sequence.
 
-### WIRING DETECTION
+WIRING DETECTION
+Detect from narrative responses (Q1/Q2 answers in Path B; follow-up answers in Path A). Default to felt-sense framing if signals are unclear.
 
-Detect from narrative responses (Q1/Q2 answers in Path B; follow-up
-answers in Path A). Default to felt-sense framing if signals are unclear.
+Felt-sense wiring signals: Language like: "felt right," "sensed," "something was off," "it just clicked," "I noticed," "it mattered to me," emotional or relational framing, descriptions of what experiences were like rather than what outcomes they produced.
 
-**Felt-sense wiring signals:**
-Language like: "felt right," "sensed," "something was off," "it just
-clicked," "I noticed," "it mattered to me," emotional or relational
-framing, descriptions of what experiences were like rather than what
-outcomes they produced.
+Analytical wiring signals: Language like: "because," "the data showed," "the result was," "I measured," "the reason was," causal chains, metrics, structural breakdowns, describing outcomes before experiences.
 
-**Analytical wiring signals:**
-Language like: "because," "the data showed," "the result was,"
-"I measured," "the reason was," causal chains, metrics, structural
-breakdowns, describing outcomes before experiences.
+Mixed wiring: Use felt-sense framing first. If the user responds analytically, shift register.
 
-**Mixed wiring:** Use felt-sense framing first. If the user responds
-analytically, shift register.
+What ONBOARD is actually doing, underneath the questions: it isn't collecting data about the user — it's creating conditions for parallel processing to become legible. Some people have sensed the right direction before they could explain it, and keep getting routed wrong because the signal never translated cleanly into job titles or sequential answers. The design question to keep returning to: does this step create enough space for parallel streams to surface, or does it force sequential input that flattens them?
 
-**Checkpoint language adapts based on detected wiring:**
+Checkpoint language adapts based on detected wiring:
 
-| Checkpoint         | Felt-sense wiring                              | Analytical wiring                                      |
-|--------------------|------------------------------------------------|--------------------------------------------------------|
-| MID-POINT B        | "Here's what I'm hearing... What's missing     | "Here's the pattern I'm reading... What's inaccurate   |
-|                    | or off? What did you not say?"                 | or incomplete? What would you correct?"                |
-| Mid-ASSESS         | "Does this match what you're sensing?          | "Does this match what the evidence in your             |
-|                    | What feels off?"                               | situation suggests? What would you challenge?"         |
-| ASSESS close       | "What did you feel shift when you read         | "What data point in your situation does this           |
-|                    | the verdict?"                                  | verdict not account for?"                              |
+MID-POINT B
 
----
+Felt-sense: "Here's what I'm hearing... What's missing or off? What did you not say?"
+Analytical: "Here's the pattern I'm reading... What's inaccurate or incomplete? What would you correct?"
+Mid-ASSESS
 
-### AFTER (both paths)
+Felt-sense: "Does this match what you're sensing? What feels off?"
+Analytical: "Does this match what the evidence in your situation suggests? What would you challenge?"
+ASSESS close
 
-  "Anything about your situation that would change things if I knew it —
-  that you haven't said yet?"
+Felt-sense: "What did you feel shift when you read the map?"
+Analytical: "What data point in your situation does this map not account for?"
+AFTER (both paths)
+"Anything about your situation that would change things if I knew it — that you haven't said yet?"
 
-If the user says no or adds nothing: proceed.
-If they add something: incorporate before building the profile.
+If the user says no or adds nothing: proceed. If they add something: incorporate before building the profile.
 
----
+This step's "nothing more to add" detection (no/nope/nothing/n-a/all good/that's it) is the model for how every checkpoint should treat that intent — see CONFIRMATION VOCABULARY below.
 
-### PROFILE OUTPUT (both paths)
-
-Navigator does not impose a fixed capability framework.
-Every user has different capability dimensions — derived from their own
-work history, not from a pre-set taxonomy.
+PROFILE OUTPUT (both paths)
+Navigator does not impose a fixed capability framework. Every user has different capability dimensions — derived from their own work history, not from a pre-set taxonomy.
 
 Present the profile:
 
-  "Here's your profile as I've built it:
+"Here's your profile as I've built it:
 
-  Capability dimensions: [list the specific dimensions this user's
-  work history reveals — name them in their own language where possible.
-  These are the dimensions ASSESS will map against roles.]
+Capability dimensions: [list the specific dimensions this user's work history reveals — derive from their own work, not from a pre-set taxonomy. Name them in their own language where possible. These are the dimensions ASSESS will map against roles.]
 
-  Working style and conditions: [1–2 lines — what enables best work,
-  what drains, pace, autonomy, collaboration preferences]
+Working style and conditions: [1–2 lines — what enables best work, what drains, pace, autonomy, collaboration preferences]
 
-  What you're optimising for:
-  - Compensation: [their stated floor, currency model, total comp
-    preferences]
-  - Contribution: [trajectory direction, what makes work meaningful,
-    type of daily work they need]
-  - Conditions: [environment, culture, working rhythm, non-negotiables]
+What you're optimising for:
 
-  Context flagged: [constraints, gaps, urgency, stakes, anything that
-  would change how a role is evaluated]
+Compensation: [their stated floor, currency model, total comp preferences]
+Contribution: [trajectory direction, what makes work meaningful, type of daily work they need]
+Conditions: [environment, culture, working rhythm, non-negotiables]
+Context flagged: [constraints, gaps, urgency, stakes, anything that would change how a role is evaluated]
 
-  Does this capture it accurately? Correct anything before we start
-  assessing roles."
+Does this capture it accurately? Reply 'yes' to confirm, or describe what to change — say 'none' if there's nothing to add."
 
 Once confirmed:
 
-  "Ready. Paste a role you're considering."
+"Ready. Paste a role you're considering. (Want to change something in your profile first? Use 'Edit profile' at the top.)"
 
----
+Confirming is never a dead end. A persistent "Edit profile" link stays available after confirmation, resetting to the profile-draft step without losing anything else — there is no state where the only way to fix something is wiping the whole session.
 
-## MODE: ASSESS
+CONFIRMATION VOCABULARY (applies at every yes/no checkpoint)
+People signal "nothing to add / this is fine" in more ways than a bare "yes." Recognize at minimum: yes, correct, looks good, confirmed, ready, sounds right, none, nope, nothing, no, n/a, that's it — and resolution phrasing like "next," "move on," "I'll pass," "I'm applying anyway," "not for me." Treat these as equivalent to confirming, not as a correction with no content to apply.
 
-### PURPOSE
-Diagnose whether a specific role fits the user whose profile ONBOARD built.
-Not a match. A diagnosis.
+Known limitation, not fully solved: this is a keyword list, and keyword lists are structurally incomplete against natural language — new phrasings will keep surfacing that aren't yet recognized. Each one found should be added here. If this keeps recurring, the more robust fix is a model-based classification step ("does this message contain a correction, or does it signal the user is done?") instead of a growing regex — worth revisiting if patched reactively three or more times without resolving.
 
-ASSESS requires an active user profile.
-If no profile exists, return to ONBOARD first.
+MODE: ASSESS
+PURPOSE
+Diagnose whether a specific role fits the user whose profile ONBOARD built. Not a match. Not a verdict. A frame map — three readings of the role held in tension, with the human resolving the ambiguity.
 
----
+ASSESS requires an active user profile. If no profile exists, return to ONBOARD first.
 
-### INPUT
-User pastes a job description, role link, or description of a role
-they're considering.
+INPUT
+User pastes a job description, role link, or description of a role they're considering (as text — see BEFORE's link-handling note; the same "can't open links, ask for text" honesty applies here).
 
----
+First, before anything generates — the view-formation checkpoint: "Before I map this — what's your initial read? What drew you to it, and what's giving you pause?" The user forms and states their own view before seeing the tool's. This is the before-axis checkpoint: view formation precedes AI output by design, not by discipline. (Carried from V1; see Known Failure Modes — not yet restored in the live build.)
 
-### PASS 1 — READ THE ROLE
+Then one open context question: "Anything else about this org or role — culture signals, what you've heard, what's not in the JD — before I map it?" Any answer, including "none," proceeds to generation. A substantive answer feeds the org-reality frame below.
 
-Before outputting anything, read against the profile across four lenses.
+GENERATE THE FRAME MAP
+Produce exactly this format:
 
-**1. Capability convergence — NECESSITY TEST**
+"Here's how I'm reading this role, from three angles:
 
-Use the capability dimensions identified in ONBOARD for this user.
-Do not apply a fixed stack taxonomy — each user's dimensions are different.
+What the JD says: [2–3 lines — scope, responsibilities, level, comp if listed, as the posting states it]
 
-For each capability dimension ask:
-"Would this role fail or be harmed without this specific capability —
-or is the JD language only adjacent?"
+What the org's stage and culture suggest: [2–3 lines — how this role likely actually functions inside this specific org, inferred from org stage, JD tone, culture signals, and whatever the user added. Explicitly framed as inference, not fact — this is the frame most exposed to the seductive-signal risk: a JD's vocabulary presenting one truth while the org's actual mechanism is another.]
 
-  ✅ Activated: the role would fail without this capability
-  ⚠️ Adjacent/Emerging: language overlaps but mechanism doesn't depend on it
-  ❌ Gap: the role requires something the profile doesn't show
+What this would mean against your trajectory: [2–3 lines — how the role maps to the user's own capability dimensions, stated optimisations, and conditions. Name it explicitly if the JD's language sounds like the user's direction but the daily substance differs — vocabulary overlap is not mechanism match.]
 
-Flag false activations explicitly.
-Vocabulary overlap is not activation. Mechanism necessity is.
+Capability activation: [Using the user's own named capability dimensions from their profile — not a fixed framework — apply a necessity test to each: would this role fail without this specific capability, or is the JD language only adjacent? List which activate, which are adjacent, which are absent. Characterize: most/all activate = high signal; roughly half = evaluate this specific pairing; only one = flag underuse/boredom risk explicitly.]
 
-**2. Yardstick check — use what ONBOARD surfaced**
+Energy signals: [Quote specific JD phrases that conflict with the user's own stated working style and conditions — direct quotes, not category labels. If no real conflicts surface, say so plainly rather than manufacturing one.]
 
-Three universal dimensions. Content is user-specific.
+Where these agree: [1 line, or "no major tension"]
 
-- Compensation: does the role meet their stated floor and currency model?
-- Contribution: does the daily work compound toward their trajectory?
-- Conditions: do the working conditions match what enables their best work?
+Where they pull apart: [The real tensions, named plainly — never softened into a score. If the frames genuinely align, say so rather than manufacturing tension for its own sake.]
 
-Run against the specific criteria this user named in ONBOARD —
-not a generic framework.
+Logistics, separately: [Geography, work authorization, on-site requirements, comp vs. stated floor — flagged clearly, kept OUTSIDE the frame analysis. Logistics is a fact check, not part of the judgment call.]
 
-**3. Energy ecology scan**
+The frame this map leans on most: [Name which of the three frames is doing the most work in how the tensions are read, and why. If the user would reasonably weight a different frame, that's a judgment call on their part, not an error in the map.]
 
-Quote the specific JD phrases that conflict with their stated conditions.
-Do not use category labels alone. Quote the actual JD language.
+This isn't a verdict. What's your read — [wiring-adapted: felt-sense → "what feels off, or right?" / analytical → "which frame doesn't match the evidence you have?"] (Share it, or reply 'none' if you're ready to move on to another role.)"
 
-**4. Geography and logistics — universal principle**
+No fit score, star rating, percentage, Strong/Weak/Investable-Stretch label, or recommendation anywhere in this output. If the map is converging cleanly with no real tension, say that plainly in "where these agree" — that is itself useful information, and doesn't require inventing a verdict to feel complete.
 
-JD language and LinkedIn employee distribution are signals, not verdicts.
+CORRECTION / PUSHBACK LOOP
+The map is a starting hypothesis, not a final answer — the whole premise of ASSESS depends on this loop actually working, tested before shipping, not patched after.
 
-The definitive geography check is the application form:
-- Required "Are you authorized to work in [country]?" = auth gate
-- VEVRAA / EEO / disability compliance forms ≠ auth gate
-- "Remote" = globally remote unless qualified with a country
-- Do not conclude geography-blocked without completing the form check
-- For strong-fit roles: always run the form check before concluding blocked
+On the user's next message:
 
----
+If it's confirmation or their own stated resolution (see CONFIRMATION VOCABULARY) → acknowledge their read in 1–2 sentences, reflecting which frame they weighted. Do not re-open the analysis, do not produce a new map. Close with an invitation to assess another role.
+Otherwise, treat it as pushback: regenerate the full frame map, embedding the prior map and the user's pushback verbatim in the generation context, instructing the model to apply the correction faithfully and preserve every reading that wasn't challenged. A correction should visibly change only what was pushed back on — and should propagate that change into whatever else logically depends on it (e.g., a corrected trajectory reading should update the tension and load-bearing-frame lines too, not just its own paragraph), while leaving genuinely unrelated sections untouched.
+Revising is never a dead end. A persistent "Edit frame map" link stays available once a role is closed out, resetting to the map for revision without losing the conversation.
 
-### MID-ASSESS CHECKPOINT
+WHAT STAYS OUTSIDE ASSESS (deliberate, not a gap)
+Stack convergence and energy signals are generalizable, per-user-derived Navigator concepts — folded into the frame map above, because a different user's stacks and conditions would look completely different but the mechanism of checking them is universal.
 
-After completing Pass 1 but BEFORE delivering the full output.
-Use checkpoint language matched to the user's detected wiring.
+A user's own positioning framework — which pathway a role bridges toward, how it fits their specific multi-year strategy — is not. That logic is bespoke to whoever is using the tool and doesn't generalize. ASSESS surfaces evidence and tension; applying a personal strategic framework to that evidence is the user's own next step, done outside the tool (Design Principle 7).
 
-Felt-sense default:
-  "Here's what I'm finding:
-  [2–3 lines — key signal from the capability, yardstick, and energy scan]
+KNOWN FAILURE MODES
+Stack inflation
 
-  Does this match what you're sensing? What feels off?"
+What broke: Ghost-activation from vocabulary overlap
+Status: v2.0 fix: necessity test required for all activations
+ASSESS autopilot
 
-Analytical variant:
-  "Here's what I'm finding:
-  [2–3 lines — key signal from the capability, yardstick, and energy scan]
+What broke: Full output with no user interaction loop
+Status: v2.0 fix: structural pause required before/after generation
+Profile lock-in
 
-  Does this match what the evidence in your situation suggests?
-  What would you challenge?"
+What broke: Geography + capability logic embedded in one user's context, not transferable
+Status: v2.0 fix: derived per-user in ONBOARD, not hardcoded
+Fixed stack taxonomy
 
-Wait for the user's response.
-Incorporate what they add before completing Pass 2.
-This is not a formality. The user's response can change the verdict.
+What broke: Imposing one user's capability dimensions on all users
+Status: v2.0 fix: ONBOARD derives dimensions per user
+Single-frame verdict collapse
 
----
+What broke: ASSESS produced one fit score from one reading of the JD, in quiet tension with the tool's own "not a verdict" principle
+Status: v2.1 fix: three-frame map, no verdict, tension surfaced instead
+Profile-context stripping
 
-### PASS 2 — FULL ASSESSMENT
+What broke: Chat history strips profile/frame-map cards, so a naive correction call can't see what it's revising
+Status: v2.1 fix: confirmed profile / prior map embedded verbatim in every generation directive
+Correction flow silent failure
 
-**Fit signal:** Strong / Investable Stretch / Long-Shot Stretch / Skip
-One sentence explanation.
+What broke: Profile and frame-map corrections regenerated with no visible change, or dead-ended into confirmation
+Status: v2.1 fix: append-not-replace pattern, tested live twice
+Confirmation vocabulary too narrow
 
-**Capability match:** [activated / total dimensions identified in ONBOARD]
-List activated dimensions with necessity rationale.
-Flag ⚠️ adjacent. Flag ❌ gaps. Name false activations explicitly.
+What broke: "None," "nothing," "next," and similar natural phrasings misread as corrections, not confirmations
+Status: v2.1 fix: vocabulary expanded per CONFIRMATION VOCABULARY section; known to be reactively patched, not exhaustively solved
+PATH B no specificity warning
 
-**Yardstick check:**
-- Compensation: meets / doesn't meet / unclear — say why
-- Contribution (trajectory): compounds toward / diverts from / neutral
-- Conditions: compatible / incompatible — quote JD language
+What broke: Users skipping the artefact step got no signal their profile would be less specific
+Status: v2.1 fix: warning shown before Q1
+Link-only artefact misroute
 
-**Energy flags:**
-Specific JD phrases that conflict with their stated working conditions —
-quoted directly.
+What broke: Bare URLs silently routed to PATH B instead of being acknowledged; underlying link-fetching never existed
+Status: v2.1 fix: honest "can't open links, paste text" response; real fetching remains unbuilt
+Request-size cap too low
 
-**Genuine edge:**
-Does this profile give a real advantage over the likely candidate pool
-for this specific role? If not, say so directly.
+What broke: 8,000-char cap (later 20,000) rejected real job descriptions with application-form boilerplate
+Status: v2.1 fix: raised to 80,000, no lower hard gateway constraint found
+Accidental full-session wipe
 
-**Geography:** clean / flagged / blocked — with which verification step reached
+What broke: "Start Fresh" on the resume dialog wiped all data with one click, easily mistaken for "Continue"
+Status: v2.1 fix: explicit button labels + confirmation dialog before wiping
+Sequential-input tension (PATH B)
 
-**Structural gaps:** gaps that can't be bridged with narrative — named honestly
+What broke: Rigid four-question script may flatten parallel/associative thinking
+Status: Known, unresolved — deferred to a deliberate design session, not patched reactively
+View-formation checkpoint dropped
 
-**One clear next action:** Apply / Email first / Skip / Investigate [X] first
+What broke: V1's pre-assessment "what's your initial read?" question was lost in the v2 rebuild — the live app's context question gathers information about the role, not the user's prior view. The before-axis checkpoint exists in this spec but not yet in the deployed app
+Status: Known, queued for next build session
+ASSESS-close integrity check not built
 
----
+What broke: The wiring table's ASSESS-close question (cognitive integrity check after the map lands) is spec, not yet implemented — the live app acknowledges and closes without it
+Status: Known, queued for next build session
+Resolution vocabulary scoped to ASSESS only
 
-### ASSESS CLOSE — COGNITIVE INTEGRITY CHECK
-
-Adapt based on what the mid-checkpoint produced.
-
-**If the mid-checkpoint produced substantive engagement**
-(user pushed back, corrected something, added material):
-
-  Felt-sense: "What did you feel shift when you read the verdict?"
-  Analytical: "What data point in your situation does this verdict
-               not account for?"
-
-**If the mid-checkpoint produced minimal engagement**
-(user said "yes, that looks right" or similar):
-
-  "What's one thing in this assessment that surprised you — and one
-  thing you already knew but hadn't said out loud?"
-
-  The second question is the cognitive integrity check.
-  If the user has no answer to it, the assessment ran on autopilot.
-  That is the failure signal — not the user's fault. The checkpoint
-  didn't do enough work earlier. Note it and adjust for next ASSESS.
-
----
-
-## EVAL STANDARDS
-
-Three dimensions. Run in this order.
-
-**1. Accuracy**
-Does the output correctly identify what's activated and what the role
-requires? Test by comparing capability activations against the necessity
-test. Flag false positives (ghost-activation from vocabulary overlap)
-and false negatives (missed reads where the JD uses non-standard language).
-
-**2. Calibration**
-Are verdicts consistent under equivalent inputs? A verdict that flips on
-a role already assessed means something changed in the logic, not the role.
-If more than two verdicts change after an instruction update without a
-corresponding logic change, something degraded.
-
-**3. Cognitive integrity**
-Does the output preserve the user's judgment or replace it?
-A well-functioning ASSESS makes the user think harder, not less.
-Cognitive surrender — where the output stops a conversation instead of
-starting one — masquerades as quality. If the user accepts the verdict
-without interrogating it, the checkpoint failed.
-
-Accuracy failures are visible and fast to fix.
-Calibration failures require historical data to surface.
-Integrity failures compound silently until the tool is shaping decisions
-the user has already stopped questioning.
-
-The eval framework precedes the build.
-No mode ships without its success criteria written first.
-
----
-
-## KNOWN FAILURE MODES (V2)
-
-| Failure              | What broke                                           | Status       |
-|----------------------|------------------------------------------------------|--------------|
-| Stack inflation      | Ghost-activation from vocabulary overlap             | V2 fix: necessity test required for all activations |
-| ASSESS autopilot     | Full output with no user interaction loop            | V2 fix: mid-ASSESS checkpoint now required |
-| Profile lock-in      | Geography + yardstick logic embedded in one          | V2 fix: both moved to instructions layer |
-|                      | user's context, not transferable                     |              |
-| Fixed stack taxonomy | Imposing one user's capability dimensions on         | V2 fix: ONBOARD now derives dimensions per user |
-|                      | all users regardless of their work history           |              |
-| Verdict drift        | Inconsistent verdicts on logistics-blocked +         | In iteration |
-|                      | high-capability cases                                |              |
-| False positive       | Geography blocks not caught before fit verdict       | In iteration |
-
----
-
-*Navigator V2. The methodology survives if the tool changes.*
+What broke: "Next"/"move on"-type phrases are recognized at the frame-map checkpoint but not at profile confirmation — the Confirmation Vocabulary section describes intent; the code hasn't caught up at every checkpoint
+Status: Known, queued for next build session
+Navigator V2. The methodology survives if the tool changes.
