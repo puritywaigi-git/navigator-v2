@@ -15,3 +15,7 @@ Career Navigator V2 shipped a full instrumentation and correction-flow pass this
 **Free-write intake redesign.** Profile-building now takes an open answer first and asks targeted follow-ups only for genuine gaps, instead of walking a fixed script regardless of what you've already said.
 
 **Fixed.** Editing an existing profile or role map no longer drops you into an unmarked, confusing state — the tool now shows what you're revising. Pasting a new job description mid-assessment is detected and starts a fresh assessment instead of being read as an answer to whatever question was open.
+## Related
+- Case study: [AI Product Design](https://puritywaigi.my.canva.site/casestudies/ai-product-design): how Navigator was designed, evaluated, and rebuilt (V1 Claude Project → V2 Lovable).
+- Case study: [Measurement Design](https://puritywaigi.my.canva.site/casestudies/measurement-design): what three months of measuring judgment across Navigator, a coaching system, and Reading Intelligence showed.
+- [Reading Intelligence](https://github.com/puritywaigi-git/reading-intelligence): the second instrumented workflow.
